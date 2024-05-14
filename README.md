@@ -1,5 +1,6 @@
-## CA VNTL Helper - README
-This is a simple helper for the CA Techlab project. It is designed to help you track errors and do some actions when errors occur. 
+## CA VNTL Helper
+This is a simple helper for the CA Techlab project. It is designed to help you track errors and do some actions when errors occur.
+**It will help you to track, log, and alert when an error occurs in your code. It can show the parameters you passed, so you can easily simulate the error.**
 ### Installation
 Install the package using pip:
 ```bash
