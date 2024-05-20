@@ -59,8 +59,12 @@ class ErrorTrackerWithCallBacks:
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                exc = sys.exception()
-                # print(exc.__traceback__)
+                # if python version >= 3.10, use sys.exc_info() instead of sys.exception()
+
+                if sys.version_info >= (3, 10):
+                    _, exc, _ = sys.exc_info()
+                else:
+                    exc = sys.exception()
                 errors_detail = traceback.extract_tb(exc.__traceback__)
                 formatted_lines = traceback.format_exc().splitlines()
                 frames = inspect.trace()
