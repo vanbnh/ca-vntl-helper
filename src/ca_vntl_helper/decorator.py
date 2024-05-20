@@ -11,13 +11,18 @@ def create_message_detail(error_detail, params, root_cause=None):
         root_cause = f"\t-->ROOT CAUSE: {root_cause} \n"
     else:
         root_cause = ""
+    # check file contain site-packages or pyt
+    if "site-packages" in error_detail.filename:
+        note_message = "site-packages"
+    else:
+        note_message = "your code"
     message = f"===================================================\n" \
               f"Filename: {error_detail.filename},\n" \
               f"Function name: {error_detail.name}, params: {params}\n" \
               f"\t-----\n" \
               f"\tLine: {error_detail.lineno}, {text_code}\n {root_cause}" \
               f"\t-----\n" \
-
+              f"\tNote: This error is from {note_message}\n"
     return message
 
 
