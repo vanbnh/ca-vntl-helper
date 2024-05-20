@@ -51,9 +51,9 @@ def error_tracking_decorator(func):
     return wrapper
 
 class ErrorTrackerWithCallBacks:
-    def __init__(self, callback_functions=None):
+    def __init__(self, callback_functions=None, is_raise_error=True):
         self.callback_functions = callback_functions
-
+        self.is_raise_error = is_raise_error
     def error_tracking_decorator(self, func):
         def wrapper(*args, **kwargs):
             try:
@@ -80,7 +80,8 @@ class ErrorTrackerWithCallBacks:
                         callback_function(messages)
                 else:
                     logging.error(messages)
-                raise e
+                if self.is_raise_error:
+                    raise e
 
         return wrapper
 
