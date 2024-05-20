@@ -47,6 +47,7 @@ def error_tracking_decorator(func):
                     message = create_message_detail(error_detail, params)
                 messages += message
             logging.error(messages)
+            raise e
     return wrapper
 
 class ErrorTrackerWithCallBacks:
@@ -79,6 +80,7 @@ class ErrorTrackerWithCallBacks:
                         callback_function(messages)
                 else:
                     logging.error(messages)
+                raise e
 
         return wrapper
 
