@@ -31,7 +31,11 @@ def error_tracking_decorator(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            exc = sys.exception()
+            if sys.version_info >= (3, 10):
+                _, exc, _ = sys.exc_info()
+            else:
+                exc = sys.exception()
+
             errors_detail = traceback.extract_tb(exc.__traceback__)
             formatted_lines = traceback.format_exc().splitlines()
             frames = inspect.trace()
@@ -47,7 +51,7 @@ def error_tracking_decorator(func):
                     message = create_message_detail(error_detail, params)
                 messages += message
             logging.error(messages)
-            raise e
+            # raise e
     return wrapper
 
 class ErrorTrackerWithCallBacks:
