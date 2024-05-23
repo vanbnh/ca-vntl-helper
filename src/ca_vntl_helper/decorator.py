@@ -4,7 +4,7 @@ import inspect
 import linecache
 import logging
 
-def create_message_detail(error_detail, params, root_cause=None):
+def create_message_detail(error_detail, params, limit_param_char=32,root_cause=None):
     text_code = linecache.getline(error_detail.filename, error_detail.lineno)
     text_code = text_code.replace("\n", "")
     if root_cause:
@@ -16,6 +16,9 @@ def create_message_detail(error_detail, params, root_cause=None):
         note_message = "site-packages"
     else:
         note_message = "your code"
+
+    # except self, and crop value too long
+    params = {key: value if len(str(value)) < limit_param_char else str(value)[:limit_param_char] + "..." for key, value in params.items() if key != "self"}
     message = f"===================================================\n" \
               f"Filename: {error_detail.filename},\n" \
               f"Function name: {error_detail.name}, params: {params}\n" \
@@ -46,18 +49,19 @@ def error_tracking_decorator(func):
                 argvalues = inspect.getargvalues(frame[0])
                 params = argvalues.locals
                 if idx == len(frames) - 1:
-                    message = create_message_detail(error_detail, params, formatted_lines[-1])
+                    message = create_message_detail(error_detail, params, limit_param_char=32, root_cause=formatted_lines[-1])
                 else:
-                    message = create_message_detail(error_detail, params)
+                    message = create_message_detail(error_detail, params, limit_param_char=32, root_cause=None)
                 messages += message
             logging.error(messages)
             # raise e
     return wrapper
 
 class ErrorTrackerWithCallBacks:
-    def __init__(self, callback_functions=None, is_raise_error=True):
+    def __init__(self, callback_functions=None, is_raise_error=False, limit_param_char=32):
         self.callback_functions = callback_functions
         self.is_raise_error = is_raise_error
+        self.limit_param_char = limit_param_char
     def error_tracking_decorator(self, func):
         def wrapper(*args, **kwargs):
             try:
@@ -79,9 +83,9 @@ class ErrorTrackerWithCallBacks:
                     argvalues = inspect.getargvalues(frame[0])
                     params = argvalues.locals
                     if idx == len(frames) - 1:
-                        message = create_message_detail(error_detail, params, formatted_lines[-1])
+                        message = create_message_detail(error_detail, params, self.limit_param_char, formatted_lines[-1])
                     else:
-                        message = create_message_detail(error_detail, params)
+                        message = create_message_detail(error_detail, params, self.limit_param_char, root_cause=None)
                     messages += message
                 if self.callback_functions:
                     for callback_function in self.callback_functions:
